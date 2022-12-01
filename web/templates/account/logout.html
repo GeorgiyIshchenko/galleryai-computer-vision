@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% load i18n %}
+
+{% block head_title %}{% trans "Log out" %}{% endblock %}
+
+{% block body %}
+    <div class="d-flex justify-content-center text-center text-dark bg-light account-cover">
+        <div class="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column" >
+            <div class="m-auto account-form">
+               <form method="POST" action="{% url "account_logout" %}">
+                <legend>Выход</legend>
+                <fieldset>
+                    {% csrf_token %}
+                    <p>Вы уверены, что хотите выйти?</p>
+                    <button class="btn" type="submit" style="background-color:#00f5b2;">Выйти</button>
+                </fieldset>
+            </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

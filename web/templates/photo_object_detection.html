@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block title %}
+{{ photo.project.name|title }}
+{% endblock %}
+
+{% block body %}
+<div>
+    <img src="{{ photo.full_image.url }}" alt="{{ photo.project }}"/>
+    {% for obj in photo_objects %}
+    <div class="rounded text-center"
+         style="position:absolute; top:{{obj.y}}px; left:{{obj.x}}px; width:{{obj.width}}px; height:{{obj.height}}px; border: medium solid {{obj.yolo_class.color}};">
+        <div style="color:{{obj.yolo_class.color}}; vertical-align:middle; font-size:{{obj.get_fs}}px;">
+            {{ obj.yolo_class.name }} {{obj.get_acc}}%
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% endblock %}

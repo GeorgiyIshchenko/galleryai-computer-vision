@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% load bootstrap4 %}
+
+{% block title %}
+{{ request.user.get_username|title }}
+{% endblock %}
+
+{% block body %}
+
+{% include "navbar.html" %}
+
+
+
+{% endblock %}

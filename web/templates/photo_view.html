@@ -1,0 +1,140 @@
+{% extends 'base.html' %}
+
+{% block title %}
+{{ photo.project.name|title }}
+{% endblock %}
+
+{% block body %}
+
+{% include "navbar.html" %}
+<div class="bg-dark pt-3" style="height: 100vh;">
+    <div class="container" style="padding: 30px 0;">
+        <div class="row mt-5">
+            <div class="col-7">
+                <div style="position:absolute;">
+                    <style>
+                        @-webkit-keyframes swing {
+                            15% {
+                                -webkit-transform: translateX(9px);
+                                transform: translateX(9px);
+                            }
+                            30% {
+                                -webkit-transform: translateX(-9px);
+                                transform: translateX(-9px);
+                            }
+                            40% {
+                                -webkit-transform: translateX(6px);
+                                transform: translateX(6px);
+                            }
+                            50% {
+                                -webkit-transform: translateX(-6px);
+                                transform: translateX(-6px);
+                            }
+                            65% {
+                                -webkit-transform: translateX(3px);
+                                transform: translateX(3px);
+                            }
+                            100% {
+                                -webkit-transform: translateX(0);
+                                transform: translateX(0);
+                            }
+                        }
+
+                        @keyframes swing {
+                            15% {
+                                -webkit-transform: translateX(9px);
+                                transform: translateX(9px);
+                            }
+                            30% {
+                                -webkit-transform: translateX(-9px);
+                                transform: translateX(-9px);
+                            }
+                            40% {
+                                -webkit-transform: translateX(6px);
+                                transform: translateX(6px);
+                            }
+                            50% {
+                                -webkit-transform: translateX(-6px);
+                                transform: translateX(-6px);
+                            }
+                            65% {
+                                -webkit-transform: translateX(3px);
+                                transform: translateX(3px);
+                            }
+                            100% {
+                                -webkit-transform: translateX(0);
+                                transform: translateX(0);
+                            }
+                        }
+
+                        .swing:hover {
+                            -webkit-animation: swing 0.6s ease;
+                            animation: swing 0.6s ease;
+                            -webkit-animation-iteration-count: 1;
+                            animation-iteration-count: 1;
+                        }
+                    </style>
+                    <div style="background:url({{ photo.full_image.url }}); width: 760px; height: 760px; background-size: contain; background-repeat:no-repeat;">
+                        {% for obj in photo_objects %}
+                        <div class="swing rounded text-center"
+                             style="position:absolute; top:{{obj.get_y}}px; left:{{obj.get_x}}px; width:{{obj.get_width}}px; height:{{obj.get_height}}px; border: medium solid {{obj.yolo_class.color}};
+                                text-align: center;">
+                            <div style="color:{{obj.yolo_class.color}}; font-size:{{obj.get_fs}}px; display: inline-block;
+                                margin-top: {{ obj.get_margin_top }}px;">
+                                {{ obj.yolo_class.name }} {{obj.get_acc}}%
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            <div class="col-5">
+                <div class="card text-center pb-4"
+                     style="width: 100%; height:100%; border-radius: 21px 21px 21px 21px; overflow:hidden">
+                    {% for meta in photo.meta.all %}
+                    {% if meta.is_ai_tag %}
+                    <div class="w-100 pt-3 bg-light text-center" style="height:50%">
+                    </div>
+                    <div class="m-auto alert alert-light shadow-sm" role="alert" style="width:80%">
+                        <p class="fw-bold" style="font-size:40px">{{ meta.project.name }} {{meta.score}}%
+                        </p>
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                    <div class="card-body w-75 m-auto text-center">
+                        <ul class="list-group">
+                            {% for yc in photo.yolo_classes.all %}
+                            <li class="list-group-item" style="background-color:{{yc.color}};">{{ yc.name|title }}</li>
+                            {% endfor %}
+                        </ul>
+                        <div class="fs-3 mt-3">{{ photo.created_at | date:'d.m.y' }}</div>
+                        <div>
+                            <form method="POST" class="w-100 mt-4" href="{% url 'web:photo_view' id=photo.id %}"><input
+                                    name="match"
+                                    value="False"
+                                    type="hidden"/>
+                                {% csrf_token %}
+                                <button type="submit" class="btn w-100 border shadow-lg">Don't match</button>
+                            </form>
+                            <form method="POST" class="w-100 mt-4" href="{% url 'web:photo_view' id=photo.id %}">
+                                <input
+                                        name="match"
+                                        value="True"
+                                        type="hidden"/>
+                                {% csrf_token %}
+                                <button type="submit" class="btn w-100 border shadow-lg">Match</button>
+                            </form>
+                            <form method="POST" class="w-100 mt-4"
+                                  action="{% url 'web:photo_delete' id=photo.id %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-light border w-100">Удалить</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

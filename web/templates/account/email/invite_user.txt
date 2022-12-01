@@ -1,0 +1,4 @@
+{% load i18n %}{% blocktrans with name=current_site.name %}Вас пригласили зарегистрироваться на {{ name }}.
+
+{{ signup_url }}
+{% endblocktrans %}

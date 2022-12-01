@@ -1,0 +1,232 @@
+{% extends 'base.html' %}
+
+{% block body %}
+
+{% load static %}
+
+{% include "navbar.html" %}
+{% if add_project %}
+<div class="alert alert-danger my-5 text-center" role="alert">
+    Создайте проект, для того чтобы начать обучение.
+</div>
+{% else %}
+{% if dropdown %}
+
+<style>
+    .image_class {
+        background-color: rgba(255, 255, 255, 0.6);
+        background-blend-mode: lighten;
+        background-size: cover;
+    }
+
+    .image_class_dark {
+        background-size: cover;
+        background-color: rgba(255, 255, 255, 0.6);
+        background-blend-mode: lighten;
+    }
+
+    .image_class_dark img {
+        opacity: 0.5;
+    }
+</style>
+
+
+<div class=" image_class position-relative overflow-hidden mt-5 text-center d-flex" id="content"
+     style="background-image: url('{{random_photo.full_image.url}}');">
+    <div class="col-md-8 p-lg-5 mx-auto">
+        {% if current_project %}
+            <h1 class="display-1 fw-normal" style="font-size: 88px;">{{ current_project | title}}</h1>
+        {% else %}
+            <h1 class="display-1 fw-normal" style="font-size: 88px;">Классификация</h1>
+        {% endif %}
+        <form class="d-flex justify-content-center mt-2" action="{% url 'web:homepage' %}" method="GET"
+              enctype="multipart/form-data">
+            <div class="form-group mx-2 d-flex justify-content-center" style="width:250px;"><select
+                    onchange="this.form.submit()"
+                    name="project" class="form-control form-select"
+                    title=""
+                    id="id_project">
+                <option class="fs-5 text-muted" value="{{ current_project.id }}">Выбрать проект</option>
+                <option class="fs-5 text-muted text-light" value="None" style="background-color:#212529">Убрать фильтр</option>
+                {% for project in projects %}
+                <option class="fs-5 text-muted" value="{{ project.id }}">{{ project.name|title }}</option>
+                {% endfor %}
+
+            </select></div>
+        </form>
+    </div>
+    <div class="product-device shadow-sm d-none d-md-block"></div>
+    <div class="product-device product-device-2 shadow-sm d-none d-md-block"></div>
+</div>
+
+{% endif %}
+
+<style>
+    .scale {
+        transition: 1s; /* Время эффекта */
+    }
+
+    .scale:hover {
+        transform: scale(1.05); /* Увеличиваем масштаб */
+    }
+</style>
+
+{% if current_project %}
+
+<div class="bg-secondary image_class position-relative overflow-hidden p-1 text-center d-flex" id="content">
+    <div class="mx-auto">
+        <h1 class="display-5 text-light fw-normal">Predicted</h1>
+    </div>
+    <div class="product-device shadow-sm d-none d-md-block"></div>
+    <div class="product-device product-device-2 shadow-sm d-none d-md-block"></div>
+</div>
+
+
+<div class="d-md-flex flex-md-equal w-100">
+    {% for project, data in data.items %}
+    <div class="bg-{{data.color}} pt-md-5 px-md-5 text-center text-{{data.text}} overflow-hidden w-50 pb-5">
+        <div class="mb-5">
+            <form action="" method="post">
+                {% csrf_token %}
+                <h2 class="display-5">{{ project |title }}
+                    <input name="type" hidden="true" value="prediction"/>
+                    <input name="project" hidden="true" value="{{ project|title }}"/>
+                    <button class="btn btn-{{data.color}}" type="submit">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="currentColor"
+                             class="bi bi-trash"
+                             viewBox="0 0 16 16">
+                            <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                            <path fill-rule="evenodd"
+                                  d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                        </svg>
+                    </button>
+                </h2>
+            </form>
+        </div>
+        <div class="bg-{{data.text}} box-shadow mb-5"
+             style="display: flex; flex-wrap: wrap; justify-content: left;width: 100%; border-radius: 21px 21px 21px 21px; overflow:hidden">
+            {% for photo in data.photos %}
+            <div class="text-center scale" style="flex: 0 1 calc(100%/5); margin-bottom: -40px">
+                <a style="width: 100%; text-decoration:none;" href="{{ photo.photo.get_absolute_url }}">
+                    <img style="width: 100%; height: 160px; object-fit: cover" src="{{ photo.photo.image.url }}"
+                         alt="{{ photo.get_absolute_url }}">
+                    <div class="fs-5 bold text-light"
+                         style="position:relative; bottom:40px; text-decoration:none; width: 100%; height:40px; background: linear-gradient(rgba(0, 0, 0, 0), rgba(0,0,0,1));">
+                        {{ photo.meta.score }}%
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+            <a href="{% url 'web:photo_load' %}" style="flex: 0 1 calc(100%/5); text-decoration: none">
+                <div class="bg-light scale"
+                     style="height: 160px; padding-top: 35px;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" fill="dark"
+                         class="bi bi-plus-circle" viewBox="0 0 16 16">
+                        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"></path>
+                        <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"></path>
+                    </svg>
+                    <p class="fs-5 fw-bold text-dark nav-link" style="text-decoration: none">Предсказать</p>
+                </div>
+            </a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<div class="bg-secondary image_class position-relative overflow-hidden p-1 text-center d-flex d-flex">
+    <div class="mx-auto">
+        <h1 class="display-5 text-light fw-normal">Trained on
+        </h1>
+    </div>
+    <div class="product-device shadow-sm d-none d-md-block"></div>
+    <div class="product-device product-device-2 shadow-sm d-none d-md-block"></div>
+</div>
+
+<div class="d-md-flex flex-md-equal w-100">
+    {% for project, data in data_trained.items %}
+    <div class="bg-{{data.color}} pt-md-5 px-md-5 text-center text-{{data.text}} overflow-hidden w-50"
+         style="padding-bottom: 60px">
+        <div class="mb-5">
+            <form action="" method="post">
+                {% csrf_token %}
+                <h2 class="display-5">{{ project |title }}
+                    <input name="type" hidden="true" value="trained"/>
+                    <input name="project" hidden="true" value="{{ project|title }}"/>
+                    <button class="btn btn-{{data.color}}" type="submit">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="currentColor"
+                             class="bi bi-trash"
+                             viewBox="0 0 16 16">
+                            <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                            <path fill-rule="evenodd"
+                                  d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                        </svg>
+                    </button>
+                </h2>
+            </form>
+        </div>
+        <div class="bg-{{data.text}} box-shadow mb-5"
+             style="display: flex; flex-wrap: wrap; justify-content: left;width: 100%; border-radius: 21px 21px 21px 21px; overflow:hidden">
+            {% for photo in data.photos.all %}
+            <div style="flex: 0 1 calc(100%/5);">
+                <a style="width: 100%;" href="{{ photo.get_absolute_url }}">
+                    <img class="scale" style="width: 100%; height: 160px; object-fit: cover" src="{{ photo.image.url }}"
+                         alt="{{ photo.get_absolute_url }}">
+                </a>
+            </div>
+            {% endfor %}
+            <a href="{% url 'web:photo_create_dataset' %}" style="flex: 0 1 calc(100%/5); text-decoration: none">
+                <div class="bg-light scale"
+                     style="height: 160px; padding-top: 35px;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" fill="dark"
+                         class="bi bi-folder-plus" viewBox="0 0 16 16">
+                        <path d="m.5 3 .04.87a1.99 1.99 0 0 0-.342 1.311l.637 7A2 2 0 0 0 2.826 14H9v-1H2.826a1 1 0 0 1-.995-.91l-.637-7A1 1 0 0 1 2.19 4h11.62a1 1 0 0 1 .996 1.09L14.54 8h1.005l.256-2.819A2 2 0 0 0 13.81 3H9.828a2 2 0 0 1-1.414-.586l-.828-.828A2 2 0 0 0 6.172 1H2.5a2 2 0 0 0-2 2zm5.672-1a1 1 0 0 1 .707.293L7.586 3H2.19c-.24 0-.47.042-.683.12L1.5 2.98a1 1 0 0 1 1-.98h3.672z"></path>
+                        <path d="M13.5 10a.5.5 0 0 1 .5.5V12h1.5a.5.5 0 1 1 0 1H14v1.5a.5.5 0 1 1-1 0V13h-1.5a.5.5 0 0 1 0-1H13v-1.5a.5.5 0 0 1 .5-.5z"></path>
+                    </svg>
+                    <p class="fs-5 fw-bold text-dark nav-link" style="text-decoration: none">Обучить</p>
+                </div>
+            </a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% else %}
+
+
+
+{% endif %}
+
+
+
+{% endif %}
+
+
+{% if gallery %}
+
+<div class="bg-secondary image_class position-relative overflow-hidden p-1 text-center d-flex" id="content">
+    <div class="mx-auto">
+        <h1 class="display-5 text-light fw-normal">Classification</h1>
+    </div>
+    <div class="product-device shadow-sm d-none d-md-block"></div>
+    <div class="product-device product-device-2 shadow-sm d-none d-md-block"></div>
+</div>
+
+<div class="d-md-flex flex-md-equal w-100">
+    <div class="bg-light pt-md-5 px-md-5 text-center text-dark overflow-hidden w-100 pb-5">
+        <div class="bg-dark box-shadow mb-5"
+             style="display: flex; flex-wrap: wrap; justify-content: left;width: 100%; border-radius: 21px 21px 21px 21px; overflow:hidden">
+            {% for photo in gallery %}
+            <div class="text-center scale" style="flex: 0 1 calc(100%/10)">
+                <a style="width: 100%; text-decoration:none;" href="{{ photo.get_absolute_url }}">
+                    <img style="width: 100%; height: 160px; object-fit: cover" src="{{ photo.image.url }}"
+                         alt="{{ photo.get_absolute_url }}">
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+{% endif %}
+
+{% endblock %}

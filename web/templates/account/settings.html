@@ -1,0 +1,23 @@
+{% extends "account/base.html" %}
+
+{% load i18n %}
+{% load bootstrap4 %}
+
+{% block body_class %}account account-settings{% endblock %}
+
+{% block head_title %}{% trans "Account" %}{% endblock %}
+
+{% block body %}
+    <div class="d-flex justify-content-center text-center text-dark bg-light account-cover">
+        <div class="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column" >
+            <div class="m-auto account-form">
+                <form method="POST" action="{% url "account_settings" %}">
+                <legend>Настройки</legend>
+                {% csrf_token %}
+                {% bootstrap_form form %}
+                <button class="btn" type="submit" style="background-color:#00f5b2;">Сохранить</button>
+            </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

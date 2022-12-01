@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% load bootstrap4 %}
+
+{% block title %}
+{{ photo.project.name|title }}
+{% endblock %}
+
+{% block body %}
+
+{% include "navbar.html" %}
+
+<div class="d-md-flex flex-md-equal w-100 pt-5" style="position: absolute; height: 100%; clear: both">
+    <div class="bg-dark pt-md-5 px-md-5 pt-3 overflow-hidden w-100 h-100">
+        <div class="my-3 py-3 text-center text-white" style="height: 230px;">
+            <h2 class="display-5">Загрузка фото</h2>
+            <p class=" container lead">Загрузите фотографии для их классификации и определения объектов на них.</p>
+        </div>
+        <div class="bg-light shadow-sm mx-auto d-flex justify-content-center vertical-align: middle;"
+             style="width: 70%; height: 100%; border-radius: 42px 42px 0 0;">
+            <div class="card" style="margin-top: 100px; height: 30%; width:450px;">
+                <div class="card-body">
+                     <form action="{% url 'web:photo_load' %}" method="POST" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <label class="fs-5 mt-3" for="id_match">Выберите фотографии для загрузки</label>
+                            <p><input id="id_match" class="btn btn-light" type="file"
+                                      name="photos" multiple
+                                      accept="image/*"/></p>
+                            <button type="submit" class="btn btn-light shadow-sm mt-5"
+                                    style="padding: 5px 20px; width:100%">Сохранить
+                            </button>
+                        </form>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}

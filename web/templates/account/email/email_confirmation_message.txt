@@ -1,0 +1,6 @@
+{% load i18n account_tags %}{% blocktrans with site_name=current_site.name %}Пользователь на сайте {{ site_name }} создан для этого адреса электронной почты.
+
+Чтобы подтвердиь адрес электронной почты перейдите по ссылке {{ activate_url }}
+
+Если вы не регистрировались на GalleryAI игнорируйте это сообщение.
+{% endblocktrans %}

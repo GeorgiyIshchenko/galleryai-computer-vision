@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% load i18n %}
+
+{% block head_title %}{% trans "Confirm your email address" %}{% endblock %}
+
+{% block body %}
+<div class="d-flex justify-content-center text-center text-dark bg-light account-cover" style="height:100vh;">
+        <div class="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column bg-dark text-light" >
+            <div class="m-auto account-form">
+               <h2>Подтвердите свой адресс электронной почты</h2>
+
+                <p>{% blocktrans %}Мы выслали вам письмо на <b>{{ email }}</b>. Для верификации перейдите по ссылке и завершите процесс. Если письмо не пришло втечение нескольких минут, обратитесь к нам <a href="mailto:club.estate@yandex.ru">galleryai.help@yandex.ru</a>{% endblocktrans %}</p>
+                <p><a href="{{ success_url }}">{% trans "Go back" %}</a></p>
+                        </div>
+        </div>
+    </div>
+
+{% endblock %}

@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% load bootstrap4 %}
+{% load i18n %}
+
+{% block title %}
+{{ photo.project.name|title }}
+{% endblock %}
+
+{% block body %}
+
+{% include "navbar.html" %}
+
+<div class="d-md-flex flex-md-equal w-100 pt-5" style="position: absolute; clear: both">
+    <div class="bg-dark pt-md-5 px-md-5 pt-3 overflow-hidden w-100 h-100">
+        <div class="my-3 py-3 text-center text-white" style="height: 170px;">
+            <h2 class="display-5">Менеджер проектов<div class="mx-auto" style="width: 40%"><a href="{% url 'web:photo_load' %}" type="button" class="btn btn-success mx-auto mt-3 btn-lg">Загрузить фотографии</a></div></h2>
+        </div>
+        <div class="bg-light py-3 shadow-sm mx-auto"
+             style="width: 70%; height: 100%; border-radius: 42px 42px 0 0;">
+            <h3 class="display-5 text-center my-2" style="font-size:30px;">Настройка тэгов классификации</h3>
+            <div class="card mt-3 mx-auto" style="width:80%;">
+                <div class="card-body">
+                    <form class="d-flex mx-2" method="POST" action="{% url 'web:project_add' %}">
+                        {% csrf_token %}
+                        <input name="project_name" class="form-control me-2" type="search"
+                               placeholder="Добавить проект"
+                               aria-label="Search">
+                        <button class="btn btn-success" type="submit">+</button>
+                    </form>
+                </div>
+            </div>
+            <div class="card mt-3 mx-auto" style="width:80%;">
+                <div class="card-body">
+                    {% for project in projects %}
+                    <form class="d-flex mx-2 mb-3" method="POST" action="{{ project.get_absolute_url_edit }}">
+                        {% csrf_token %}
+                        <input name="project_name" class="form-control me-2" type="search"
+                               placeholder="Переименовать" value="{{ project }}"
+                               aria-label="Search">
+                        <div class="btn-group shadow-sm" role="group" aria-label="Basic mixed styles example">
+                            <button type="submit" class="btn btn-success">Переименовать</button>
+                            <a href="{% url 'web:photo_create_dataset' %}?project_id={{ project.id }}" type="button" class="btn btn-secondary">Обучить</a>
+                            <a href="{{ project.get_absolute_url_delete }}" type="button" class="btn btn-danger">Удалить</a>
+                        </div>
+                    </form>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <h3 class="display-5 text-center mt-4" style="font-size:30px;">Настройка тэгов компьютерного зрения</h3>
+
+            <div class="card mt-3 mx-auto" style="width:80%;">
+                <div class="card-body">
+                    {% for project in projects_cv %}
+                    <form class="d-flex mx-2 mb-3" method="POST" action="{{ project.get_absolute_url_edit }}">
+                        {% csrf_token %}
+                        <input name="project_name" class="form-control me-2" type="search"
+                               placeholder="Переименовать" value='{{ project }}'
+                               aria-label="Search" disabled>
+                        <div class="btn-group shadow-sm" role="group" aria-label="Basic mixed styles example">
+                            <a href="{{ project.get_absolute_url }}" type="button" class="btn" style="color:{{project.color}}; width: 430px">Просмотреть</a>
+                        </div>
+                    </form>
+                    {% endfor %}
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}

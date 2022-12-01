@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+
+{% block body %}
+
+{% load static %}
+
+{% include "navbar.html" %}
+<style>
+    .image_class {
+        background-color: rgba(255, 255, 255, 0.6);
+        background-blend-mode: lighten;
+        background-size: cover;
+    }
+
+    .image_class_dark {
+        background-size: cover;
+        background-color: rgba(255, 255, 255, 0.6);
+        background-blend-mode: lighten;
+    }
+
+    .image_class_dark img {
+        opacity: 0.5;
+    }
+</style>
+
+
+<div class=" image_class position-relative overflow-hidden mt-5 text-center d-flex" id="content"
+     style="background-image: url('{{random_photo.full_image.url}}');">
+    <div class="col-md-8 p-lg-5 mx-auto">
+        <h1 class="display-1 fw-normal" style="font-size: 88px;">
+            {{ current_class | title }}
+        </h1>
+        <form class="d-flex justify-content-center mt-2" action="{% url 'yolo:index' %}" method="GET"
+              enctype="multipart/form-data">
+            <div class="form-group mx-2 d-flex justify-content-center" style="width:250px;"><select
+                    onchange="this.form.submit()"
+                    name="class" class="form-control form-select"
+                    title=""
+                    id="id_class">
+                <option class="fs-5 text-muted" value="{{ current_project.id }}">Выбрать класс</option>
+                <option class="fs-5 text-muted text-light" value="None" style="background-color:#212529">Убрать фильтр</option>
+                {% for name in yc %}
+                <option class="fs-5 text-muted" value="{{ name.id }}">{{ name.name|title }}</option>
+                {% endfor %}
+
+            </select></div>
+        </form>
+    </div>
+    <div class="product-device shadow-sm d-none d-md-block"></div>
+    <div class="product-device product-device-2 shadow-sm d-none d-md-block"></div>
+</div>
+
+<style>
+    .scale {
+        transition: 1s; /* Время эффекта */
+    }
+
+    .scale:hover {
+        transform: scale(1.05); /* Увеличиваем масштаб */
+    }
+</style>
+
+{% if request.user.is_authenticated %}
+
+<div class="bg-secondary image_class position-relative overflow-hidden p-1 text-center d-flex" id="content">
+    <div class="mx-auto">
+        <h1 class="display-5 text-light fw-normal">Computer Vision</h1>
+    </div>
+    <div class="product-device shadow-sm d-none d-md-block"></div>
+    <div class="product-device product-device-2 shadow-sm d-none d-md-block"></div>
+</div>
+
+{% endif %}
+
+<div class="d-md-flex flex-md-equal w-100">
+    <div class="bg-dark pt-md-5 px-md-5 text-center text-light overflow-hidden w-100 pb-5">
+        <div class="mb-5">
+            <form action="" method="post">
+                {% csrf_token %}
+                <h2 class="display-5"></h2>
+            </form>
+        </div>
+        <div class="bg-{{data.text}} box-shadow mb-5"
+             style="display: flex; flex-wrap: wrap; justify-content: left;width: 100%; border-radius: 21px 21px 21px 21px; overflow:hidden">
+            {% for photo in photos %}
+            <div class="text-center scale" style="flex: 0 1 calc(100%/5); margin-bottom: -40px">
+                <a style="width: 100%; text-decoration:none;" href="{{ photo.get_absolute_url }}">
+                    <img style="width: 100%; height: 260px; object-fit: cover" src="{{ photo.image.url }}"
+                         alt="{{ photo.get_absolute_url }}">
+                    <div class="fs-5 bold text-light"
+                         style="position:relative; bottom:40px; text-decoration:none; width: 100%; height:40px; background: linear-gradient(rgba(0, 0, 0, 0), rgba(0,0,0,1));">
+                        {% for yc in photo.yolo_classes.all %}
+                        <span class="badge text-dark" style="background-color:{{ yc.color }};">{{ yc|title }}</span>
+                        {% endfor %}
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+            <a href="{% url 'yolo:load' %}" style="flex: 0 1 calc(100%/5); text-decoration: none">
+                <div class="bg-light scale"
+                     style="height: 260px; padding-top: 80px;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" fill="dark"
+                         class="bi bi-plus-circle" viewBox="0 0 16 16">
+                        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"></path>
+                        <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"></path>
+                    </svg>
+                    <p class="fs-5 fw-bold text-dark nav-link" style="text-decoration: none">Загрузить фото</p>
+                </div>
+            </a>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}

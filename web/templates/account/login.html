@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% load account_tags %}
+{% load i18n %}
+
+{% load bootstrap4 %}
+
+{% block head_title %}{% trans "Log in" %}{% endblock %}
+
+{% block body %}
+    <div class="d-flex justify-content-center text-left text-dark bg-light account-cover" style="height:100vh;">
+        <div class="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column bg-dark text-light" >
+            <div class="m-auto account-form" style="width: 20%;">
+                <form method="POST" action="{% url "account_login" %}" autocapitalize="off" {% if form.is_multipart %} enctype="multipart/form-data"{% endif %}>
+                <legend class="text-center">Вход в аккаунт</legend>
+                {% csrf_token %}
+                <div class="my-1">
+                    <label for="id_username">Адрес электронной почты</label>
+                    <input type="text" name="username" maxlength="30" class="form-control" placeholder="Email" title="" required="" id="id_username">
+                </div>
+                <div class="my-1">
+                    {% bootstrap_field form.password %}
+                </div>
+                <div class="form-group text-center"><div class="form-check" style="margin: 0 85px;"><input type="checkbox" name="remember" class="form-check-input" id="id_remember"><label class="form-check-label" for="id_remember">Запомнить Меня</label></div></div>
+                {% if redirect_field_value %}
+                    <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
+                {% endif %}
+                <button class="btn btn-light mt-2" type="submit">{% trans "Log in" %}</button>
+                <a href="{% url "account_password_reset" %}" class="btn btn-link text-center w-100">Забыли пароль?</a>
+            </form>
+            <p class="login-signup text-center">
+                    <small>
+                        Еще нет аккаунта? <strong><a href="{% urlnext 'account_signup' %}">Зарегистрироваться</a></strong>
+                    </small>
+            </p>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block scripts %}
+    {{ block.super }}
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $('#id_username').focus();
+        });
+    </script>
+{% endblock %}
