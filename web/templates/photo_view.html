@@ -91,16 +91,17 @@
             <div class="col-5">
                 <div class="card text-center pb-4"
                      style="width: 100%; height:100%; border-radius: 21px 21px 21px 21px; overflow:hidden">
-                    {% for meta in photo.meta.all %}
-                    {% if meta.is_ai_tag %}
-                    <div class="w-100 pt-3 bg-light text-center" style="height:50%">
+                    <div class="fs-3 mt-3">Классификация</div>
+                    <div class="card-body w-75 m-auto text-center">
+                        <ul class="list-group">
+                        {% for meta in photo.meta.all %}
+                        {% if meta.is_ai_tag %}
+                        <li class="list-group-item bg-light text-dark" style="">{{ meta.project.name }} {{meta.score}}%</li>
+                        {% endif %}
+                        {% endfor %}
+                    </ul>
                     </div>
-                    <div class="m-auto alert alert-light shadow-sm" role="alert" style="width:80%">
-                        <p class="fw-bold" style="font-size:40px">{{ meta.project.name }} {{meta.score}}%
-                        </p>
-                    </div>
-                    {% endif %}
-                    {% endfor %}
+                    <div class="fs-3 mt-3">Компьютерное зрение</div>
                     <div class="card-body w-75 m-auto text-center">
                         <ul class="list-group">
                             {% for yc in photo.yolo_classes.all %}
@@ -109,14 +110,14 @@
                         </ul>
                         <div class="fs-3 mt-3">{{ photo.created_at | date:'d.m.y' }}</div>
                         <div>
-                            <form method="POST" class="w-100 mt-4" href="{% url 'web:photo_view' id=photo.id %}"><input
+                            <form method="POST" class="w-100 mt-2" href="{% url 'web:photo_view' id=photo.id %}"><input
                                     name="match"
                                     value="False"
                                     type="hidden"/>
                                 {% csrf_token %}
                                 <button type="submit" class="btn w-100 border shadow-lg">Don't match</button>
                             </form>
-                            <form method="POST" class="w-100 mt-4" href="{% url 'web:photo_view' id=photo.id %}">
+                            <form method="POST" class="w-100 mt-2" href="{% url 'web:photo_view' id=photo.id %}">
                                 <input
                                         name="match"
                                         value="True"
@@ -124,7 +125,7 @@
                                 {% csrf_token %}
                                 <button type="submit" class="btn w-100 border shadow-lg">Match</button>
                             </form>
-                            <form method="POST" class="w-100 mt-4"
+                            <form method="POST" class="w-100 mt-2"
                                   action="{% url 'web:photo_delete' id=photo.id %}">
                                 {% csrf_token %}
                                 <button type="submit" class="btn btn-light border w-100">Удалить</button>

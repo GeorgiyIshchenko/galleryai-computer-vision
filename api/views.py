@@ -30,7 +30,7 @@ class PhotoDelete(APIView):
 
 class StartTrain(APIView):
 
-    def get(self, request, project_pk):
+    def post(self, request, project_pk):
         check_token(request)
         print('api_train')
         project = Project.objects.get(pk=project_pk)
@@ -40,9 +40,7 @@ class StartTrain(APIView):
 
 class StartPrediction(APIView):
 
-    def get(self, request):
-        check_token(request)
-        print('api_prediction')
+    def post(self, request):
         user = check_token(request=request)
         start_prediction.delay(user.id)
         return Response({'success': True}, status=status.HTTP_201_CREATED)
@@ -51,25 +49,29 @@ class StartPrediction(APIView):
 class PhotoPostTrain(APIView):
 
     def post(self, request):
-        check_token(request)
-        file_serializer = TrainSerializer(data=request.data)
-        if file_serializer.is_valid():
-            file_serializer.save()
-            return Response(file_serializer.data, status=status.HTTP_201_CREATED)
+        print(request.data)
+        user = check_token(request)
+        photo_serializer = TrainSerializer(data=request.data)
+        if photo_serializer.is_valid():
+            photo = photo_serializer.save(user=user)
+            photo.projects.add(Project.objects.get(id=request.data['project']), through_defaults={'match': request.data['match'] == 'true', 'is_ai_tag': False})
+            return Response(photo_serializer.data, status=status.HTTP_201_CREATED)
         else:
-            return Response(file_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response(photo_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class PhotoPostPrediction(APIView):
 
     def post(self, request):
-        check_token(request)
-        file_serializer = PredictionSerializer(data=request.data)
-        if file_serializer.is_valid():
-            file_serializer.save()
-            return Response(file_serializer.data, status=status.HTTP_201_CREATED)
+        user = check_token(request)
+        photo_serializer = PredictionSerializer(data=request.data)
+        if photo_serializer.is_valid():
+            photo = photo_serializer.save(user=user)
+            for project in user.projects.all():
+                photo.projects.add(project, through_defaults={'match': None, 'is_ai_tag': True})
+            return Response(photo_serializer.data, status=status.HTTP_201_CREATED)
         else:
-            return Response(file_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response(photo_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class ProjectsView(APIView):

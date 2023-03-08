@@ -17,6 +17,7 @@ urlpatterns = [
     path('<int:id>/', photo_view, name='photo_view'),
     path('<int:id>/od', photo_object_detection, name='photo_object_detection'),
     path('project_library/', project_library, name='projects'),
-    path('project_library/<int:pk>zip', get_zip_project, name='project_zip'),
+    path('project_library/<int:pk>zip_m', get_zip_project_m, name='project_zip_m'),
+    path('project_library/<int:pk>zip_nm', get_zip_project_nm, name='project_zip_nm'),
     path('im/', profile_view, name='profile'),
 ]

@@ -14,11 +14,23 @@
 <div class="d-md-flex flex-md-equal w-100 pt-5" style="position: absolute; clear: both">
     <div class="bg-dark pt-md-5 px-md-5 pt-3 overflow-hidden w-100 h-100">
         <div class="my-3 py-3 text-center text-white" style="height: 170px;">
-            <h2 class="display-5">Менеджер проектов<div class="mx-auto" style="width: 40%"><a href="{% url 'web:photo_load' %}" type="button" class="btn btn-success mx-auto mt-3 btn-lg">Загрузить фотографии</a></div></h2>
+            <h2 class="display-5">Менеджер проектов
+                <div class="mx-auto" style="width: 40%"><a href="{% url 'web:photo_load' %}" type="button"
+                                                           class="btn btn-success mx-auto mt-3 btn-lg">Загрузить
+                    фотографии</a></div>
+            </h2>
         </div>
-        <div class="bg-light py-3 shadow-sm mx-auto"
-             style="width: 70%; height: 100%; border-radius: 42px 42px 0 0;">
-            <h3 class="display-5 text-center my-2" style="font-size:30px;">Настройка тэгов классификации</h3>
+        <div class="bg-light shadow-sm mx-auto"
+             style="width: 70%; height: 100%; border-radius: 50px 50px 0 0;">
+            <div class="bg-secondary image_class position-relative overflow-hidden p-1 text-center d-flex"
+                 id="content1"
+                 style="border-radius: 43px 43px 0 0;">
+                <div class="mx-auto">
+                    <h1 class="display-5 text-light fw-normal">Классификация</h1>
+                </div>
+                <div class="product-device shadow-sm d-none d-md-block"></div>
+                <div class="product-device product-device-2 shadow-sm d-none d-md-block"></div>
+            </div>
             <div class="card mt-3 mx-auto" style="width:80%;">
                 <div class="card-body">
                     <form class="d-flex mx-2" method="POST" action="{% url 'web:project_add' %}">
@@ -32,23 +44,62 @@
             </div>
             <div class="card mt-3 mx-auto" style="width:80%;">
                 <div class="card-body">
-                    {% for project in projects %}
-                    <form class="d-flex mx-2 mb-3" method="POST" action="{{ project.get_absolute_url_edit }}">
-                        {% csrf_token %}
-                        <input name="project_name" class="form-control me-2" type="search"
-                               placeholder="Переименовать" value="{{ project }}"
-                               aria-label="Search">
-                        <div class="btn-group shadow-sm" role="group" aria-label="Basic mixed styles example">
-                            <button type="submit" class="btn btn-success">Переименовать</button>
-                            <a href="{% url 'web:photo_create_dataset' %}?project_id={{ project.id }}" type="button" class="btn btn-secondary">Обучить</a>
-                            <a href="{{ project.get_absolute_url_delete }}" type="button" class="btn btn-danger">Удалить</a>
+
+                    <div class="row mx-2" style="margin-bottom: -10px;">
+                        <div class="col-6">
+                            <p class="fs-4 mx-3">Название проекта</p>
                         </div>
+                        <div class="col-2">
+                            <p class="fs-4">Порог</p>
+                        </div>
+                        <div class="col-4">
+                            <p class="fs-4">Кнопки настройки</p>
+                        </div>
+                    </div>
+
+                    {% for project in projects %}
+                    <form class="" method="POST" action="{{ project.get_absolute_url_edit }}">
+                    <div class="row mx-2 mb-3 alert alert-{% if project.is_trained %}success{% else %}danger{% endif %}"
+                         role="alert">
+                        <p class="fs-5" style="margin-bottom: 0px;">{% if project.is_trained %}Trained{% else %}Not
+                            Trained{% endif %}</p>
+
+                            {% csrf_token %}
+                            <div class="col-6">
+                                <input name="project_name" class="form-control" type="search"
+                                       placeholder="Переименовать" value="{{ project }}"
+                                       aria-label="Search">
+                            </div>
+                            <div class="col-2">
+                                <input placeholder="Порог для предсказания" type="number" class="form-control"
+                                       min=1
+                                       max=100 name="threshold"
+                                       value="{{ project.threshold }}">
+                            </div>
+                            <div class="col-4">
+                                <div class="btn-group shadow-sm w-100" role="group" aria-label="Basic mixed styles example"
+                                     oninput="this.nextElementSibling.value = this.value">
+                                    <button type="submit" class="btn btn-success">Сохранить</button>
+                                    <a href="{% url 'web:photo_create_dataset' %}?project_id={{ project.id }}"
+                                       type="button"
+                                       class="btn btn-secondary">Обучить</a>
+                                    <a href="{{ project.get_absolute_url_delete }}" type="button"
+                                       class="btn btn-danger">Удалить</a>
+                                </div>
+                            </div>
+                    </div>
                     </form>
                     {% endfor %}
                 </div>
             </div>
 
-            <h3 class="display-5 text-center mt-4" style="font-size:30px;">Настройка тэгов компьютерного зрения</h3>
+            <div class="bg-secondary image_class position-relative overflow-hidden p-1 text-center d-flex" id="content">
+                <div class="mx-auto">
+                    <h1 class="display-5 text-light fw-normal">Компьютерное зрение</h1>
+                </div>
+                <div class="product-device shadow-sm d-none d-md-block"></div>
+                <div class="product-device product-device-2 shadow-sm d-none d-md-block"></div>
+            </div>
 
             <div class="card mt-3 mx-auto" style="width:80%;">
                 <div class="card-body">
@@ -59,12 +110,14 @@
                                placeholder="Переименовать" value='{{ project }}'
                                aria-label="Search" disabled>
                         <div class="btn-group shadow-sm" role="group" aria-label="Basic mixed styles example">
-                            <a href="{{ project.get_absolute_url }}" type="button" class="btn" style="color:{{project.color}}; width: 430px">Просмотреть</a>
+                            <a href="{{ project.get_absolute_url }}" type="button" class="btn"
+                               style="color:{{project.color}}; width: 430px">Просмотреть</a>
                         </div>
                     </form>
                     {% endfor %}
                 </div>
             </div>
+
 
         </div>
     </div>

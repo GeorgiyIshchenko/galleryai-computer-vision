@@ -1,0 +1,1 @@
+start C:\Users\idmit\GalleryAI\venv\Scripts\python.exe C:\Users\idmit\GalleryAI\manage.py runserver

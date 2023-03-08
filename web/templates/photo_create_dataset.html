@@ -10,11 +10,13 @@
 
 {% include "navbar.html" %}
 
-<div class="d-md-flex flex-md-equal w-100 pt-5" style="position: absolute; height: 100%; clear: both">
-    <div class="bg-dark pt-md-5 px-md-5 pt-3 overflow-hidden w-100 h-100">
+<div class="d-md-flex flex-md-equal w-100 pt-5 h-100" style="position: absolute; clear: both">
+    <div class="bg-dark pt-md-5 px-md-5 pt-3 overflow-hidden w-100">
+
         <div class="my-3 py-3 text-center text-white" style="height: 230px;">
             <h2 class="display-5">Обучение в проекте</h2>
-            <p class=" container lead">Выберите проект и загрузите фотографии, которые вам подходят и не подходят (не
+            <p class=" container lead">Выберите проект и загрузите фотографии, которые вам подходят и не подходят
+                (не
                 менее
                 20
                 для каждого статуса) для
@@ -22,40 +24,139 @@
                 постарайтесь
                 выбирать разные по цвету, качеству и композиции изображения.</p>
         </div>
-        <div class="bg-light shadow-sm mx-auto d-flex justify-content-center vertical-align: middle;"
-             style="width: 70%; height: 100%; border-radius: 42px 42px 0 0;">
-            <div class="card" style="margin-top: 100px; height: 40%; width: 450px;">
-                <div class="card-body">
-                    <form action="{% url 'web:photo_create_dataset' %}" method="POST"
-                          enctype="multipart/form-data">
-                        {% csrf_token %}
-                        <label class="fs-5" for="id_project">Выберите проект для обучения</label>
-                        <div class="form-group" style="width:100%;"><select
-                                name="project" class="form-control form-select w-100" title=""
-                                id="id_project">
-                            <option class="fs-5 text-muted" value="{{ current_project.id }}">{{ current_project.name | title}}</option>
-                            {% for project in projects %}
-                            <option value="{{ project.id }}">{{ project.name|title }}</option>
-                            {% endfor %}
-
-                        </select></div>
-                        <label class="fs-5 mt-3" for="id_match">Выберите фотографии, которые подходят</label>
-                        <p><input id="id_match" class="btn btn-light w-100" type="file"
-                                  name="match"
-                                  multiple
-                                  accept="image/*"/></p>
-                        <label class="fs-5 mt-1" for="id_doesnt_match">Выберите фотографии, которые не подходят</label>
-                        <p><input id="id_doesnt_match" class="btn btn-light w-100"
-                                  type="file"
-                                  name="doesnt_match" multiple
-                                  accept="image/*"/></p>
-                        <button type="submit" class="btn btn-light mt-2 shadow-sm"
-                                style="padding: 5px 20px; width:100%">Сохранить
-                        </button>
-                    </form>
+        <form action="{% url 'web:photo_create_dataset' %}" method="POST"
+              enctype="multipart/form-data">
+            <div class="bg-light shadow-sm mx-auto"
+                 style="width: 70%; height: 100%; border-radius: 50px 50px 50px 50px;">
+                <div class="bg-secondary image_class position-relative overflow-hidden p-1 text-center d-flex"
+                     id="content1"
+                     style="border-radius: 43px 43px 0 0;">
+                    <div class="mx-auto">
+                        <h1 class="display-5 text-light fw-normal">Training</h1>
+                    </div>
+                    <div class="product-device shadow-sm d-none d-md-block"></div>
+                    <div class="product-device product-device-2 shadow-sm d-none d-md-block"></div>
                 </div>
+                <div class="row">
+
+                    <div class="col-3"></div>
+
+                    <div class="col-6">
+
+                        <div class="card w-100">
+                            <div class="card-body">
+
+                                {% csrf_token %}
+                                <label class="fs-5" for="id_project">Выберите проект для обучения</label>
+                                <div class="form-group" style="width:100%;"><select
+                                        name="project" class="form-control form-select w-100" title=""
+                                        id="id_project">
+                                    <option class="fs-5 text-muted" value="{{ current_project.id }}">
+                                        {{ current_project.name | title}}
+                                    </option>
+                                    {% for project in projects %}
+                                    <option value="{{ project.id }}">{{ project.name|title }}</option>
+                                    {% endfor %}
+
+                                </select></div>
+                                <label class="fs-5 mt-3" for="id_match">Выберите фотографии, которые подходят</label>
+                                <p><input id="id_match" class="btn btn-light w-100" type="file"
+                                          name="match"
+                                          multiple
+                                          accept="image/*"/></p>
+                                <label class="fs-5 mt-1" for="id_doesnt_match">Выберите фотографии, которые не
+                                    подходят</label>
+                                <p><input id="id_doesnt_match" class="btn btn-light w-100"
+                                          type="file"
+                                          name="doesnt_match" multiple
+                                          accept="image/*"/></p>
+                                <button type="submit" class="btn btn-dark shadow-sm mt-2 position-fixed"
+                                        style="padding: 5px 20px; width:200px; position:absolute; top:520px; left:1300px; height:200px">
+                                    <h4>Обучить</h4>
+                                </button>
+
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                <div class="bg-secondary image_class position-relative overflow-hidden p-1 text-center d-flex"
+                     id="content"  style="border-radius: 0 0 43px 43px;">
+                    <div class="mx-auto">
+                        <h1 class="display-5 text-light fw-normal">Soon...</h1>
+                    </div>
+                    <div class="product-device shadow-sm d-none d-md-block"></div>
+                    <div class="product-device product-device-2 shadow-sm d-none d-md-block"></div>
+                </div>
+
+                <!--<div class="row">
+
+                    <div class="col-6 text-center">
+                        <div class="display-5 my-4">Match</div>
+                    </div>
+
+                    <div class="col-6 text-center">
+                        <div class="display-5 my-4">Not Match</div>
+                    </div>
+
+
+                </div>
+
+                <div class="row">
+
+                    <div class="col-1"></div>
+
+                    <div class="col-1">
+
+                        {% for photo in photos %}
+
+                        <img src="{{ photo.image.url }}" alt="{{ photo.id }}"
+                             style="height:100px; width:100px; object-fit: cover;">
+
+                        {% endfor %}
+
+                    </div>
+
+                    <div class="col-4">
+
+                        <select name="photo_select_m" class="form-select form-select-lg mb-3 mx-auto" multiple
+                                aria-label=".form-select-lg example" style="height:{{ select_height }}px;">
+                            {% for photo in photos %}
+                            <option class="bg-light text-dark text-center text-uppercase align-text-middle"
+                                    style="height:100px" value={{ photo.id }}>{{ photo }}
+                            </option>
+                            {% endfor %}
+                        </select>
+
+                    </div>fff
+
+                    <div class="col-1">
+
+                        {% for photo in photos %}
+
+                        <img src="{{ photo.image.url }}" alt="{{ photo.id }}"
+                             style="height:100px; width:100px; object-fit: cover;">
+
+                        {% endfor %}
+
+                    </div>
+
+                    <div class="col-4">
+
+                        <select name="photo_select_nm" class="form-select form-select-lg mb-3 mx-auto" multiple
+                                aria-label=".form-select-lg example" style="height:{{ select_height }}px;">
+                            {% for photo in photos %}
+                            <option class="bg-light text-dark text-center text-uppercase align-text-middle"
+                                    style="height:100px" value={{ photo.id }}>{{ photo }}
+                            </option>
+                            {% endfor %}
+                        </select>
+
+                    </div>
+
+                </div>-->
             </div>
-        </div>
+        </form>
     </div>
 </div>
 

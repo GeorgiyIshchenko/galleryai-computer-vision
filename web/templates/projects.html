@@ -11,7 +11,7 @@
 {% include "navbar.html" %}
 
 <div class=" image_class position-relative overflow-hidden mt-5 text-center d-flex" id="content"
-     style="background-image: url('{{random_photo.full_image.url}}');">
+     style="background-image: url('{{ project.get_random_photo.image.url }}');">
     <div class="col-md-8 p-lg-5 mx-auto">
         <h1 class="display-1 fw-normal" style="font-size: 88px;">Библиотека проектов</h1>
         <div class="mx-auto text-center w-50">
@@ -34,31 +34,65 @@
 </div>
 
 <div class="d-md-flex flex-md-equal w-100">
-    <div class="bg-dark px-md-5 text-dark overflow-hidden w-100 pb-5">
-        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4 g-3">
-        {% for project in projects %}
-        <div class="col">
-            <div class="card mt-5" style="max-width: 540px;">
-                <div class="row g-0">
-                    <div class="col-md-4">
-                        <img src="{{ project.get_random_photo.image.url }}" class="img-fluid rounded-start" alt="..."
-                             style="height:200px; width:200px; object-fit: cover">
-                    </div>
-                    <div class="col-md-8">
-                        <div class="card-body">
-                            <h5 class="card-title">{{ project.name }}</h5>
-                            <p class="card-text">Last updated {{ project.last_update }}</p>
-                            <p class="card-text"><small class="text-muted"></small>Size: {{ project.get_match.count}}
-                            </p>
-                            <a href="{{ project.get_zip_url }}" class="btn btn-success">Download</a>
+    <div class="bg-light px-md-5 text-dark text-center overflow-hidden w-50 pb-5">
+        <div class="my-4">
+            <h2 class="display-5">Match</h2>
+        </div>
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-2 g-3">
+            {% for project in projects %}
+            <div class="col">
+                <div class="card bg-dark text-white shadow-sm my-2" style="max-width: 540px;">
+                    <div class="row g-0">
+                        <div class="col-md-4">
+                            <img src="{{ project.get_random_photo.image.url }}" class="img-fluid rounded-start"
+                                 alt="..."
+                                 style="height:200px; width:200px; object-fit: cover">
+                        </div>
+                        <div class="col-md-8">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ project.name }}</h5>
+                                <p class="card-text">Обновлено:<br>{{ project.last_update }}</p>
+                                <p class="card-text"><small class="text-muted"></small>Size: {{ project.get_match_photos_count }}
+                                </p>
+                                <a href="{{ project.get_zip_url_match }}" class="btn btn-success">Download</a>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
+            {% endfor %}
         </div>
-        {% endfor %}
     </div>
+    <div class="bg-dark px-md-5 text-white text-center overflow-hidden w-50 pb-5">
+        <div class="my-4">
+            <h2 class="display-5">Not Match</h2>
+        </div>
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-2 g-3">
+            {% for project in projects %}
+            <div class="col">
+                <div class="card bg-white text-dark shadow-sm my-2" style="max-width: 540px;">
+                    <div class="row g-0">
+                        <div class="col-md-4">
+                            <img src="{{ project.get_random_photo_n.image.url }}" class="img-fluid rounded-start"
+                                 alt="..."
+                                 style="height:200px; width:200px; object-fit: cover">
+                        </div>
+                        <div class="col-md-8">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ project.name }}</h5>
+                                <p class="card-text">Обновлено:<br>{{ project.last_update }}</p>
+                                <p class="card-text"><small class="text-muted"></small>Size: {{ project.get_match_photos_count }}
+                                </p>
+                                <a href="{{ project.get_zip_url_not_match }}" class="btn btn-success">Download</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
     </div>
 </div>
+
 
 {% endblock %}

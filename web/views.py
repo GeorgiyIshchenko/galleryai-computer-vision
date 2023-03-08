@@ -34,7 +34,7 @@ def homepage(request):
 
             if request.method == 'POST':
                 if request.POST['type'] == 'prediction':
-                    if "Don't Match" in request.POST['project']:
+                    if "Not Match" in request.POST['project']:
                         for photo in project.photos.all():
                             meta = PhotoProject.objects.get(photo=photo, project=project)
                             if meta.is_ai_tag is True and meta.match is False:
@@ -45,7 +45,7 @@ def homepage(request):
                             if meta.is_ai_tag is True and meta.match is True:
                                 photo.delete()
                 else:
-                    if "Don't Match" in request.POST['project']:
+                    if "Not Match" in request.POST['project']:
                         for photo in project.photos.all():
                             meta = PhotoProject.objects.get(photo=photo, project=project)
                             if meta.is_ai_tag is False and meta.match is False:
@@ -57,9 +57,9 @@ def homepage(request):
                                 photo.delete()
             if project is not None:
                 match = [{'photo': photo, 'meta': photo.meta.get(project_id=project.id)} for photo in
-                         project.photos.filter(Q(meta__match=True) & Q(meta__is_ai_tag=True))]
+                         project.photos.filter(Q(meta__score__gte=project.threshold) & Q(meta__is_ai_tag=True))]
                 not_match = [{'photo': photo, 'meta': photo.meta.get(project_id=project.id)} for photo in
-                             project.photos.filter(Q(meta__match=False) & Q(meta__is_ai_tag=True))]
+                             project.photos.filter(Q(meta__score__lt=project.threshold) & Q(meta__is_ai_tag=True))]
                 trained_match = project.photos.filter(Q(meta__match=True) & Q(meta__is_ai_tag=False))
                 trained_not_match = project.photos.filter(Q(meta__match=False) & Q(meta__is_ai_tag=False))
 
@@ -68,13 +68,13 @@ def homepage(request):
                 if size > 0:
                     random_photo = trained_match.order_by('?')[0]
                 data = {f"Match ({len(match)})": {"color": "white", "text": "dark", "photos": match, },
-                        f"Don't match ({len(not_match)})": {"color": "dark", "text": "white", "photos": not_match,
-                                                               }, }
+                        f"Not match ({len(not_match)})": {"color": "dark", "text": "white", "photos": not_match,
+                                                          }, }
                 data_trained = {
                     f"Match ({len(trained_match)})": {"color": "white", "text": "dark",
-                                                         "photos": trained_match, },
-                    f"Don't match ({len(trained_not_match)})": {"color": "dark", "text": "white",
-                                                                   "photos": trained_not_match, }, }
+                                                      "photos": trained_match, },
+                    f"Not match ({len(trained_not_match)})": {"color": "dark", "text": "white",
+                                                              "photos": trained_not_match, }, }
                 return render(request, 'homepage.html',
                               {'data': data, 'data_trained': data_trained, 'dropdown': True, 'projects': projects,
                                'current_project': project, 'random_photo': random_photo})
@@ -108,17 +108,15 @@ def project_manager(request):
 
 
 def project_library(request):
-    projects = Project.objects.all()
+    projects = [i for i in Project.objects.all() if i.photos.count()]
     return render(request, 'projects.html', {'projects': projects})
 
 
-def get_zip_project(request, pk):
-    project = Project.objects.get(pk=pk)
-
+def get_zip(project, photos):
     filenames = []
-    for photo in project.get_match():
-        url = ('C:/Users/idmit/GalleryAI'+photo.image.url).split('%40')
-        url = url[0]+"@"+url[1]
+    for photo in photos:
+        url = ('C:/Users/idmit/GalleryAI' + photo.image.url).split('%40')
+        url = url[0] + "@" + url[1]
         print(url)
         filenames.append(url)
 
@@ -127,26 +125,29 @@ def get_zip_project(request, pk):
 
     s = io.BytesIO()
 
-    # The zip compressor
     zf = zipfile.ZipFile(s, "w")
 
     for fpath in filenames:
-        # Calculate path for file in zip
         fdir, fname = os.path.split(fpath)
         zip_path = os.path.join(zip_subdir, fname)
-
-        # Add file, at correct path
         zf.write(fpath, zip_path)
 
-    # Must close zip for all contents to be written
     zf.close()
 
-    # Grab ZIP file from in-memory, make response with correct MIME-type
     resp = HttpResponse(s.getvalue(), content_type="application/x-zip-compressed")
-    # ..and correct content-disposition
     resp['Content-Disposition'] = 'attachment; filename=%s' % zip_filename
 
     return resp
+
+
+def get_zip_project_m(request, pk):
+    project = Project.objects.get(pk=pk)
+    return get_zip(project, project.get_match())
+
+
+def get_zip_project_nm(request, pk):
+    project = Project.objects.get(pk=pk)
+    return get_zip(project, project.get_not_match())
 
 
 @login_required
@@ -154,6 +155,7 @@ def project_edit(request, pk):
     if request.method == 'POST':
         project = Project.objects.get(pk=pk)
         project.name = request.POST.get('project_name', project.name)
+        project.threshold = request.POST.get('threshold', project.threshold)
         project.save()
         return redirect(reverse('web:project_add'))
 
@@ -188,13 +190,31 @@ def photo_delete(request, id):
 def photo_load(request):
     if request.method == "POST":
         photos = request.FILES.getlist('photos')
+        projects = Project.objects.filter(
+            id__in=request.POST.getlist('projects', request.user.projects.filter(is_trained=True)))
         for i in photos:
             photo = Photo.objects.create(image=i, user=request.user)
-            for project in request.user.projects.all():
-                photo.projects.add(project, through_defaults={'match': None, 'is_ai_tag': True})
+            for project in projects:
+                if project not in photo.projects.all():
+                    photo.projects.add(project, through_defaults={'match': None, 'is_ai_tag': True})
+        photo_select = [Photo.objects.get(id=int(i)) for i in request.POST.getlist('photo_select')]
+        for photo in photo_select:
+            for project in projects:
+                if project in photo.projects.all():
+                    meta = photo.meta.get(project=project)
+                    meta.match = None
+                    meta.is_ai_tag = True
+                    meta.save()
+                else:
+                    photo.projects.add(project, through_defaults={'match': None, 'is_ai_tag': True})
         start_prediction.delay(request.user.id)
         return redirect('/')
-    return render(request, 'photo_prediction.html')
+    projects = request.user.projects.filter(is_trained=True)
+
+    photos = request.user.photos.all().order_by('-id')
+
+    return render(request, 'photo_prediction.html',
+                  {'projects': projects, 'photos': photos, 'select_height': photos.count() * 100 + 50})
 
 
 @login_required
@@ -203,12 +223,35 @@ def photo_create_dataset(request):
         project = Project.objects.get(pk=int(request.POST.get('project')))
         match = request.FILES.getlist('match')
         doesnt_match = request.FILES.getlist('doesnt_match')
+        pm = [Photo.objects.get(id=int(i)) for i in request.POST.getlist('photo_select_m')]
+        pnm = [Photo.objects.get(id=int(i)) for i in request.POST.getlist('photo_select_nm')]
+
         for i in match:
             photo = Photo.objects.create(image=i, user=request.user)
             photo.projects.add(project, through_defaults={'match': True, 'is_ai_tag': False})
+
+        for photo in pm:
+            if project in photo.projects.all():
+                meta = photo.meta.get(project=project)
+                meta.match = True
+                meta.is_ai_tag = False
+                meta.save()
+            else:
+                photo.projects.add(project, through_defaults={'match': True, 'is_ai_tag': False})
+
         for i in doesnt_match:
             photo = Photo.objects.create(image=i, user=request.user)
             photo.projects.add(project, through_defaults={'match': False, 'is_ai_tag': False})
+
+        for photo in pnm:
+            if project in photo.projects.all():
+                meta = photo.meta.get(project=project)
+                meta.match = False
+                meta.is_ai_tag = False
+                meta.save()
+            else:
+                photo.projects.add(project, through_defaults={'match': False, 'is_ai_tag': False})
+
         start_train.delay(project.id)
         return redirect('/')
     projects = request.user.projects.all()
@@ -218,8 +261,10 @@ def photo_create_dataset(request):
     if request.GET.get('project_id'):
         current_project = projects.get(id=request.GET['project_id'])
     form = DataSetCreationForm()
+    photos = request.user.photos.all().order_by('-id')
     return render(request, 'photo_create_dataset.html',
-                  {'projects': projects, 'form': form, 'current_project': current_project})
+                  {'projects': projects, 'form': form, 'current_project': current_project, 'photos': photos,
+                   'select_height': photos.count() * 100 + 50})
 
 
 @login_required
@@ -235,5 +280,3 @@ def photo_object_detection(request, id):
 @login_required
 def profile_view(request):
     return render(request, 'profile_view.html')
-
-

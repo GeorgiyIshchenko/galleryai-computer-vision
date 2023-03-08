@@ -6,6 +6,7 @@ from django.db.models import Q
 import os
 import tensorflow as tf
 import shutil
+import imghdr
 
 from web.models import Photo, Project, PhotoProject
 
@@ -21,9 +22,8 @@ def start_train(project_id):
         project = Project.objects.get(id=project_id)
         if project.photos.filter(
                 Q(meta__is_ai_tag=False) and Q(meta__match=True)).count() >= 20 and project.photos.filter(
-                Q(meta__is_ai_tag=False) and Q(meta__match=False)).count() >= 20:
+            Q(meta__is_ai_tag=False) and Q(meta__match=False)).count() >= 20:
 
-            print('STARTING TRAIN...')
             photos = project.photos.filter(meta__is_ai_tag=False)
 
             model = Train(project_id, photos)
@@ -46,22 +46,25 @@ def start_prediction(user_id):
             if project.is_trained:
                 photos = project.photos.filter(meta__match=None)
 
-                result = Prediction(project_id, photos, str(project.user.email), str(project_id))
+                print(photos)
 
-                score_list = [int(result[i] * 100) for i in range(len(result))]
+                if photos:
+                    result = Prediction(project_id, photos, str(project.user.email), str(project_id))
 
-                x = 50
+                    score_list = [int(result[i] * 100) for i in range(len(result))]
 
-                for i in range(len(score_list)):
-                    score = score_list[i]
-                    photo = photos[i]
+                    x = 50
 
-                    meta = photo.meta.get(project_id=project_id)
-                    meta.match = True if score >= x else False
-                    meta.score = score
-                    meta.is_ai_tag = True
+                    for i in range(len(score_list)):
+                        score = score_list[i]
+                        photo = photos[i]
 
-                    meta.save()
+                        meta = photo.meta.get(project_id=project_id)
+                        meta.match = True if score >= x else False
+                        meta.score = score
+                        meta.is_ai_tag = True
+
+                        meta.save()
             else:
                 print('PROJECT IS NOT TRAINED ')
     except json.decoder.JSONDecodeError:
@@ -103,6 +106,9 @@ def model_delete_and_save(model, user_name, model_name):
 def Train(project_id, photos):
     BATCH_SIZE = 32
     IMG_SIZE = (160, 160)
+
+    photos = [photo for photo in photos if
+              imghdr.what(path_to_media + str(photo.image)) in ['jpg', 'png', 'jpeg', 'gif', 'bmp']]
 
     train_dataset = dataset_by_filenames(project_id, photos, "train")
 
@@ -235,6 +241,9 @@ def join_prediction_dataset():
 
 
 def Prediction(project_id, photos, user_name, model_name):
+    photos = [photo for photo in photos if
+              imghdr.what(path_to_media + str(photo.image)) in ['jpg', 'png', 'jpeg', 'gif', 'bmp']]
+
     model = model_preparation(user_name, model_name)
     prediction_dataset = dataset_by_filenames(project_id, photos, "prediction")
     AUTOTUNE = tf.data.AUTOTUNE

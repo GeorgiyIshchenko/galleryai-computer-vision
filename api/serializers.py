@@ -51,11 +51,10 @@ class ProjectCreateSerializer(serializers.ModelSerializer):
 
 
 class TrainSerializer(serializers.ModelSerializer):
-    meta = MetaSerializer()
 
     class Meta:
         model = Photo
-        fields = ('image', 'device_path', 'device_uri', 'meta')
+        fields = ('image', 'device_path', 'device_uri')
 
 
 class PredictionSerializer(serializers.ModelSerializer):

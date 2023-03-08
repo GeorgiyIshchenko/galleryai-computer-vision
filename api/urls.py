@@ -23,7 +23,7 @@ urlpatterns = [
     path('create_project', ProjectCreate.as_view()),
 
     path('start_train_project/<int:project_pk>', StartTrain.as_view()),
-    path('start_prediction_project/<int:project_pk>', StartPrediction.as_view()),
+    path('start_prediction', StartPrediction.as_view()),
 
     path('get_user', UserView.as_view()),
 ]
